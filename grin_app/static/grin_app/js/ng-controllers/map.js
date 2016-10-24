@@ -13,10 +13,15 @@ app.controller('mapController',
         $uibModal,
         geoJsonService) {
 
-        var DEFAULT_BASEMAP = geoJsonService.params.baseMap ||
+        var baseMap = geoJsonService.params.baseMap ||
             Cookies.get('baseMap') ||
             'ESRI - NatGeo (default, reference map)';
+			if(baseMap === 'MapQuest (aerial imagery)') {
+				// the mapquest basemap was discontinued
+				baseMap = 'ESRI - world imagery';
+			}
 
+				
         /* 350px is the default height used by leafletjs. If another default
          * size is set, it will result in the map size being invlidated and
          * causing an initial reload of the search which is bad UX.
@@ -58,30 +63,28 @@ app.controller('mapController',
             maxResultsCircle: null,
             countries: [],
             baseMaps: {
-                'ESRI - NatGeo (default, reference map)': function () {
+
+              'ESRI - NatGeo (default, reference map)': function () {
                     return L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
                         attribution: 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
                         noWrap: true
                     });
                 },
-                'OpenTopoMap (terrain map)': function () {
+                'OpenTopoMap - terrain': function () {
                     return L.tileLayer('http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
                         attribution: 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
                         noWrap: true
                     });
                 },
-                'MapQuest (aerial imagery)': function () {
-                    return L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.{ext}', {
-                        type: 'sat',
-                        ext: 'jpg',
-                        attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/">MapQuest</a> &mdash; Portions Courtesy NASA/JPL-Caltech and U.S. Depart. of Agriculture, Farm Service Agency',
-                        subdomains: '1234',
-                        noWrap: true
-                    });
-                }
+              'ESRI - world imagery': function () {
+								return L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+									attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+									noWrap: true
+								});
+              }
             }
         };
-
+			
         $scope.init = function () {
 
             if (!('mapHeight' in geoJsonService.params)) {
@@ -100,7 +103,7 @@ app.controller('mapController',
             geoJsonService.map = $scope.model.map;
 
             // add the default basemap
-            $scope.model.baseMapLayer = $scope.model.baseMaps[DEFAULT_BASEMAP]();
+            $scope.model.baseMapLayer = $scope.model.baseMaps[baseMap]();
             $scope.model.baseMapLayer.addTo($scope.model.map);
             mapLayer = L.geoJson(geoJsonService.data, {
                 pointToLayer: geoJsonService.getFeatureMarker,
@@ -130,8 +133,8 @@ app.controller('mapController',
             north.addTo($scope.model.map);
 
             mapLayer.addTo($scope.model.map);
-            Cookies.set('baseMap', DEFAULT_BASEMAP);
-            $location.search('baseMap', DEFAULT_BASEMAP);
+            Cookies.set('baseMap', baseMap);
+            $location.search('baseMap', baseMap);
 
             geoJsonService.subscribe($scope, 'updated', function () {
 
