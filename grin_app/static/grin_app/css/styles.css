@@ -121,3 +121,7 @@ h3 {
     word-wrap: normal !important;
     white-space: pre !important;
 }
+
+.user-data-table {
+		overflow-x: scroll !important
+}

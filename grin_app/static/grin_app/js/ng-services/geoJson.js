@@ -943,7 +943,7 @@ app.service('geoJsonService',
 
          var circleMarkerMaker = function(props, latlng) {
             // get a circle marker and tag it with the accession #.
-            var mouseOverLabel = props.accenumb + ' (' + props.taxon + ')';
+           var mouseOverLabel = '<b>'+props.accenumb + '</b>: '+ props.taxon;
             var marker = L.circleMarker(latlng, {
                 id: props.accenumb,
                 radius: MARKER_RADIUS,
@@ -953,7 +953,7 @@ app.service('geoJsonService',
                 opacity: 1,
                 fillOpacity: 1
             });
-            marker.bindLabel(mouseOverLabel);
+            marker.bindTooltip(mouseOverLabel);
             return marker;
           };
 

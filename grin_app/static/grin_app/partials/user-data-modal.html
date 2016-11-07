@@ -192,20 +192,21 @@
                            class="form-control" size="3">
             of {{model.results.data.length }} total records.
         </div>
-        {{ getHeaders() }}
-        <table class="table table-striped">
+				<div class="user-data-table">
+					<table class="table table-striped user-data-table">
             <tr>
-                <th class="parsed-csv"
-                    ng-repeat="h in model.sortedHeaders">
-                    {{h}}
-                </th>
+              <th class="parsed-csv"
+                ng-repeat="h in model.sortedHeaders">
+                {{h}}
+              </th>
             </tr>
             <tr ng-repeat="rec in model.results.data | limitTo: model.previewLimit">
-                <td class="parsed-csv" ng-repeat="h in model.sortedHeaders">
-                    {{rec[h]}}
-                </td>
+              <td class="parsed-csv" ng-repeat="h in model.sortedHeaders">
+                {{rec[h]}}
+              </td>
             </tr>
-        </table>
+					</table>
+				</div>
     </div>
 
     <div ng-if="model.results">

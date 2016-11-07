@@ -110,7 +110,8 @@ app.controller('mapController',
                 onEachFeature: function (feature, layer) {
                     // bind a popup to each feature
                     var accId = feature.properties.accenumb;
-                    var content = accId + '<br/>' + feature.properties.taxon;
+                  var content = '<b>'+ accId + '</b>: ' +
+											    feature.properties.taxon;
                     var popup = L.popup();
                     popup.setContent(content);
                     popup.accId = accId;
@@ -208,8 +209,9 @@ app.controller('mapController',
 
             /* manage leaflet popup & associate with selected accession in
              * list view */
-            $scope.model.map.on('popupopen', function (e) {
-                currentPopup = e.popup; // keep track of current popup
+          $scope.model.map.on('popupopen', function (e) {
+						  e.popup._source.closeTooltip();
+              currentPopup = e.popup; // keep track of current popup
                 if(ignorePopupEvts) {
                     // ignore this event if we are reloading a result set.
                     // (leaflet will fire events even though they were not
@@ -315,7 +317,6 @@ app.controller('mapController',
                     else { 
                         $scope.errors.push('Geolocation was not successful: ' + msg);                    
                     }
-                    console.log($scope.model.geoLocationSupported);
                 });                 
             }
             navigator.geolocation.getCurrentPosition(geoOK, geoError); 
@@ -378,15 +379,19 @@ app.controller('mapController',
             $scope.model.map.eachLayer(function (l) {
                  if (selAccId &&
                      selAccId === _.get(l, 'feature.properties.accenumb')) {
-                     l.bringToFront();
-                     // openPopup() will also cause leaflet to scroll the popup
-                     // into view, which is not desired, so check bounds before
-                     // restoring the popup.
-                     if(bounds.contains(l.getLatLng())) {
-                         if(! l._popup._isOpen) {
-                             l.openPopup();
-                         }
-                     }
+									 // The selected accession should always be on top
+									 // override the logic below by dlaying the call to
+									 // bringToFront. This is pretty ugly, and should be
+									 // refactored.
+                   setTimeout(function(){l.bringToFront()});
+                   // openPopup() will also cause leaflet to scroll the popup
+                   // into view, which is not desired, so check bounds before
+                   // restoring the popup.
+                   if(bounds.contains(l.getLatLng())) {
+                     if(! _.get(l, 'l._popup._isOpen')) {
+                        l.openPopup();
+                      }
+                    }
                 }
                 else if(trait && _.has(l, 'feature.properties.haveTrait')) {
                     // if there is a trait overlay, those should appear above
@@ -397,7 +402,7 @@ app.controller('mapController',
                      accIds.indexOf(_.get(l, 'feature.properties.accenumb')) !== -1) {
                     // if there is a set of user's accession ids,
                     // they should bubble to top of z.
-                    l.bringToFront();
+                   l.bringToFront();
                  }
                 else if('bringToBack' in l) {
                      l.bringToBack();
