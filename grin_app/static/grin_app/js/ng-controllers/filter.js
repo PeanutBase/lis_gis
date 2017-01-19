@@ -44,13 +44,19 @@ app.controller('filterController',
             }
         };
 
+        // some parameters may be updated by the userDataController,
+        // so listen for changes on the geoJsonService
         geoJsonService.subscribe($scope, 'accessionIdsUpdated', function () {
-            // the accessionIds may have been updated by another controller,
-            // so update our model
             $scope.model.accessionIds = geoJsonService.params.accessionIds;
             refreshTraitMenu($scope.model.taxonQuery);
         });
-
+        geoJsonService.subscribe($scope, 'taxonUpdated', function () {
+            $scope.model.taxonQuery = geoJsonService.params.taxonQuery;;
+            refreshTraitMenu($scope.model.taxonQuery);
+        });
+        geoJsonService.subscribe($scope, 'traitOverlayUpdated', function () {
+            $scope.model.traitOverlay = geoJsonService.params.traitOverlay;
+        });
         geoJsonService.subscribe($scope, 'updated', function () {
             $scope.model.accessionIds = geoJsonService.params.accessionIds;
         });
@@ -107,9 +113,9 @@ app.controller('filterController',
                 $scope.model.traitDescriptors = data;
                 // reset the trait selection, if it's no longer valid for this
                 // taxon query
-                if(! $scope.model.traitOverlay in data) {
-                    $scope.model.traitOverlay = null;
-                }
+                // if(! $scope.model.traitOverlay in data) {
+                //     $scope.model.traitOverlay = null;
+                // }
             };
             geoJsonService.getTraitDescriptors(taxon, callback);
         }
@@ -231,23 +237,6 @@ app.controller('filterController',
             $scope.model.traitOverlay = null;
             $scope.onTaxonQuery($scope.model.taxonQuery);
         };
-        //
-        // // onUserData() this is identical to map.js's onUserData().
-        // // this could possibly be refactored to be a service of some kind.
-        // $scope.onUserData = function () {
-        //     var modal = $uibModal.open({
-        //         animation: true,
-        //         templateUrl: STATIC_PATH + 'grin_app/partials/user-data-modal.html',
-        //         controller: 'userDataController',
-        //         size: 'lg',
-        //         resolve: {
-        //             model: {
-        //                 BRANDING: BRANDING,
-        //                 STATIC_PATH: STATIC_PATH
-        //             }
-        //         }
-        //     });
-        // };
 
         $scope.init();
     });

@@ -1,4 +1,4 @@
-"use strict";
+ "use strict";
 
 app.service('geoJsonService',
     function ($http, $rootScope, $location, $timeout, $q,
@@ -52,6 +52,8 @@ app.service('geoJsonService',
             'willUpdate',
             'selectedAccessionUpdated',
             'accessionIdsUpdated',
+            'taxonUpdated',
+            'traitOverlayUpdated'
         ];
 
         // userData controller may set this descriptor_name for the edge case
@@ -197,7 +199,7 @@ app.service('geoJsonService',
             // setSelectedAccession will order the search results so the sel. is
             // in first position.
             s.setSelectedAccession(s.selectedAccession);
-             s.updating = false;
+            s.updating = false;
             notify('updated');
         }
 
@@ -218,7 +220,6 @@ app.service('geoJsonService',
         };
 
         s.search = function () {
-
             if(s.updating) {
                 $timeout(function() {
                     s.updating = false;
@@ -235,7 +236,6 @@ app.service('geoJsonService',
             // s.params will be used by various templates and controllers,
             // so refresh it upon every search
             s.params = getSearchParams();
-
             if(window.location.href.length > MAX_URL) {
                 $rootScope.warnings.push('Warning: location.href is exceeding '+
                     'recommended length (2k): ' + window.location.href.length);
@@ -431,6 +431,7 @@ app.service('geoJsonService',
             $location.search('ne_lng', s.bounds._northEast.lng);
             $location.search('sw_lat', s.bounds._southWest.lat);
             $location.search('sw_lng', s.bounds._southWest.lng);
+            s.params = getSearchParams();
             if (doSearch) {
                 s.search();
             }
@@ -439,6 +440,7 @@ app.service('geoJsonService',
         /* set a country filter for the search. */
         s.setCountry = function (cty, search) {
             $location.search('country', cty);
+            s.params = getSearchParams();
             if (search) {
                 s.search();
             }
@@ -447,6 +449,7 @@ app.service('geoJsonService',
         /* set the max number of records in search results limit. */
         s.setMaxRecs = function (max, search) {
             $location.search('maxRecs', max);
+            s.params = getSearchParams();
             if (search) {
                 s.search();
             }
@@ -455,14 +458,17 @@ app.service('geoJsonService',
         /* set whether to limit the search to the current geographic extent. */
         s.setLimitToMapExtent = function (bool, search) {
             $location.search('limitToMapExtent', bool);
+            s.params = getSearchParams();
             if (search) {
                 s.search();
             }
         };
 
-        /* set a taxon query string for full-text search by genus or species. */
+        /* set a taxon query string for full-text search by genus or species.*/
         s.setTaxonQuery = function (q, search) {
             $location.search('taxonQuery', q);
+            s.params = getSearchParams();
+            notify('taxonUpdated');
             if (search) {
                 s.search();
             }
@@ -474,6 +480,7 @@ app.service('geoJsonService',
             // allowed URL length with search parameters, so use localstorage.
             delete $localStorage.accessionIds;
             $location.search('accessionIds', null);
+            s.params = getSearchParams();
             if (accessionIds) {
                 var ids = accessionIds.split(',');
                 if (ids.length <= 10) {
@@ -495,6 +502,7 @@ app.service('geoJsonService',
         /* set a custom color for the user's list of accessionIds */
         s.setAccessionIdsColor = function (color, search) {
             $location.search('accessionIdsColor', color);
+            s.params = getSearchParams();
             if (search) {
                 s.search();
             }
@@ -504,6 +512,7 @@ app.service('geoJsonService',
          results exclusively for this set of accession ids. */
         s.setAccessionIdsInclusive = function (bool, search) {
             $location.search('accessionIdsInclusive', bool);
+            s.params = getSearchParams();         
             if (search) {
                 s.search();
             }
@@ -512,6 +521,8 @@ app.service('geoJsonService',
         /* set a trait descriptor_name to display for the taxon query. */
         s.setTraitOverlay = function (trait, search) {
             $location.search('traitOverlay', trait);
+            s.params = getSearchParams();
+            notify('traitOverlayUpdated');
             if (search) {
                 s.search();
             }
@@ -521,6 +532,7 @@ app.service('geoJsonService',
          from the map display. */
         s.setTraitExcludeUnchar = function (bool, search) {
             $location.search('traitExcludeUnchar', bool);
+            s.params = getSearchParams();
             if (search) {
                 s.search();
             }
@@ -530,6 +542,7 @@ app.service('geoJsonService',
          min/max values for numeric traits. */
         s.setTraitScale = function (scale, search) {
             $location.search('traitScale', scale);
+            s.params = getSearchParams();
             if (search) {
                 s.search();
             }
@@ -538,6 +551,7 @@ app.service('geoJsonService',
         /* set whether to limit search results to those having geographic coords. */
         s.setGeocodedAccessionsOnly = function (bool, search) {
             $location.search('geocodedOnly', bool);
+            s.params = getSearchParams();
             if (search) {
                 s.search();
             }
@@ -1112,6 +1126,7 @@ app.service('geoJsonService',
 
         /* pub/sub event model adapted from here :
          http://www.codelord.net/2015/05/04/angularjs-notifying-about-changes-from-services-to-controllers/
+         TODO: instead of Pub/Sub, implement this with Observables.
          */
         s.subscribe = function (scope, eventName, callback) {
             if (!_.includes(s.events, eventName)) {

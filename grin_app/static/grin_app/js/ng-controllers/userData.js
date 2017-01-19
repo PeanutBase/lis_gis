@@ -240,30 +240,30 @@ app.controller('userDataController',
         /* updateSearchTaxon() : assist the user by filling in the search model
          * with a taxon from their data sets. If the taxon already is in the
          * search model, then check it's validity. */
-        function updateSearchTaxon() {
-            var userData = $localStorage.userGeoJson;
-            var taxa = _.uniq(_.map(userData, function(o) {
-                return o.properties.taxon;
-            }));
-            taxa = _.filter(taxa, function(s) { // filter empties
-              return ! _.isEmpty(s);
-            });
-            if(_.isEmpty(taxa)) {
-                 // it's possible user specified some GRIN accession ids, but
-                 // not the taxon. The geoJsonService will have to set the
-                 // taxonQuery after fetching the accession Ids. Early out for
-                 // this edge case here.                 
-                var descrs = getUserTraitDescriptors();
-                if(! _.isEmpty(descrs)) {
-                    geoJsonService.bootSearchTaxonForTraitDescriptor = descrs[0];
+                function updateSearchTaxon() {
+                    var userData = $localStorage.userGeoJson;
+                    var taxa = _.uniq(_.map(userData, function(o) {
+                        return o.properties.taxon;
+                    }));
+                    taxa = _.filter(taxa, function(s) { // filter empties
+                        return ! _.isEmpty(s);
+                    });
+                    if(_.isEmpty(taxa)) {
+                        // it's possible user specified some GRIN accession ids, but
+                        // not the taxon. The geoJsonService will have to set the
+                        // taxonQuery after fetching the accession Ids. Early out for
+                        // this edge case here.                 
+                        var descrs = getUserTraitDescriptors();
+                        if(! _.isEmpty(descrs)) {
+                            geoJsonService.bootSearchTaxonForTraitDescriptor = descrs[0];
+                        }
+                        return;
+                    }
+                    var params = geoJsonService.params;
+                    if(! _.includes(taxa, params.taxonQuery)) {
+                        geoJsonService.setTaxonQuery(taxa[0], false);
+                    }
                 }
-                return;
-            }
-            var params = geoJsonService.params;
-            if(! _.includes(taxa, params.taxonQuery)) {
-                geoJsonService.setTaxonQuery(taxa[0], false);
-            }
-        }
 
         /* updateSearchTrait() : assist the user by filling in the search model
          * with a trait descriptor_name from their data sets. If the trait is
