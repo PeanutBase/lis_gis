@@ -15,17 +15,18 @@ Including another URLconf
 """
 from django.conf.urls import url
 # from django.contrib import admin
+from grin_app import views as grin_views
 
 urlpatterns = [
 
-    url(r'^$', 'grin_app.views.index'),
-    url(r'^search$', 'grin_app.views.search'),
-    url(r'^countries$', 'grin_app.views.countries'),
-    url(r'^accession_detail$', 'grin_app.views.accession_detail'),
-    url(r'^evaluation_descr_names$', 'grin_app.views.evaluation_descr_names'),
-    url(r'^evaluation_detail$', 'grin_app.views.evaluation_detail'),
-    url(r'^evaluation_search$', 'grin_app.views.evaluation_search'),
-    url(r'^evaluation_metadata$', 'grin_app.views.evaluation_metadata'),
+    url(r'^$', grin_views.index),
+    url(r'^search$', grin_views.search),
+    url(r'^countries$', grin_views.countries),
+    url(r'^accession_detail$', grin_views.accession_detail),
+    url(r'^evaluation_descr_names$', grin_views.evaluation_descr_names),
+    url(r'^evaluation_detail$', grin_views.evaluation_detail),
+    url(r'^evaluation_search$', grin_views.evaluation_search),
+    url(r'^evaluation_metadata$', grin_views.evaluation_metadata),
 
     # disabling admin site until it's actually required/used --agr
     # url(r'^admin/', include(admin.site.urls)),
