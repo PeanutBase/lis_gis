@@ -928,7 +928,7 @@ app.service('geoJsonService',
                 return circleMarkerMaker(feature.properties, latlng);
             }
             var traitSubDescriptors = s.traitHash[feature.properties.accenumb];
-            if(_.isEmpty(traitSubDescriptors)) {
+            if(_.isEmpty(traitSubDescriptors) || _.size(traitSubDescriptors) < 2) {
                 // either this is either an uncharacterized accession, or
                 // there is no custom sub-descriptor, but anyways, use circle.
                 return circleMarkerMaker(feature.properties, latlng);

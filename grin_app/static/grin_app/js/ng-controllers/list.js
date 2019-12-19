@@ -125,7 +125,7 @@ app.controller('listController',
         }
 
         function onGoExternalLISGRIN(accDetail) {
-            var url = '/grinconnect/query?grin_acc_no=' +
+            var url = 'https://npgsweb.ars-grin.gov/gringlobal/accessiondetail.aspx?accid=' +
                 encodeURIComponent(accDetail.properties.accenumb);
             $window.open(url, 'LIS');
         }

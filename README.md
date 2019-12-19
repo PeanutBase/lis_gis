@@ -32,10 +32,12 @@ psql lis_gis < scripts/schema.sql
 
 The required python modules are in the requirements.txt
 
+
 ```pip install -r requirements.txt```
 
 
 ## Unit tests using django_nose
+
 
 ```./manage.py test```
 
