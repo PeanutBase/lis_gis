@@ -40,6 +40,8 @@ VOLUME ["/app/grin_app/static/grin_app/js/node_modules"]
 
 FROM nginx:1.19-alpine AS nginx
 
+# remove "worker_processes auto;" & use default (1)
+RUN sed -i'' '/^worker_processes/d' /etc/nginx/nginx.conf
 COPY ./nginx/ /etc/nginx/templates
 COPY --from=build /app/grin_app/static/ /usr/share/nginx/html/static/
 COPY ./grin_app/static/ /usr/share/nginx/html/static/
