@@ -14,6 +14,7 @@ services:
       - "80:80"
     depends_on:
       - django
+    restart: always
     volumes:
       - gunicorn-socket:/run/gunicorn
 
@@ -24,6 +25,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    restart: always
     environment:
       ALLOWED_HOSTS:
       DEBUG:
@@ -44,6 +46,7 @@ services:
     healthcheck:
       test: "su-exec postgres pg_isready || exit 1"
       retries: 10
+    restart: always
     environment:
       POSTGRES_PASSWORD: unused
       POSTGRES_INITDB_ARGS: --auth=peer
