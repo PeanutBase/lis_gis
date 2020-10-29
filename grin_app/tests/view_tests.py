@@ -18,12 +18,12 @@ def test_index():
     assert_ok(res)
     assert len(res.content) > 0
     html = res.content
-    assert '<html' in html
-    assert settings.BRANDING['site_abbrev'] in html
-    assert settings.BRANDING['site_heading'] in html
-    assert settings.BRANDING['home_url'] in html
-    assert settings.BRANDING['logo_url'] in html
-    assert settings.BRANDING['site_subheading'] in html
+    assert b'<html' in html
+    assert settings.BRANDING['site_abbrev'].encode() in html
+    assert settings.BRANDING['site_heading'].encode() in html
+    assert settings.BRANDING['home_url'].encode() in html
+    assert settings.BRANDING['logo_url'].encode() in html
+    assert settings.BRANDING['site_subheading'].encode() in html
 
 
 def test_search():

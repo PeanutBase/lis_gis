@@ -137,5 +137,5 @@ function showTourOneTime() {
 
 app.run(function ($state) {
   $state.transitionTo('search');
-  showTourOneTime();
+//showTourOneTime();
 });

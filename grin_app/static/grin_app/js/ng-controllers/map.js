@@ -352,7 +352,7 @@ app.controller('mapController',
         };
 
         $scope.onTour = function () {
-	  lisTours.go('germplasm-map');
+            lisTours.go('germplasm-map');
         };
 
         function get2CharAbbrev(feature) {

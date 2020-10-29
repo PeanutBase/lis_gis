@@ -1,0 +1,51 @@
+# local development deployment
+services:
+  web:
+    build:
+      context: .
+      target: dev
+    environment:
+      DEBUG: '1'
+      PGHOST: /run/postgresql
+      PGPORT:
+      PGPASSWORD:
+      PGUSER:
+      PGDATABASE: postgres
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+        read_only: true
+      - type: volume
+        target: /app/grin_app/static/grin_app/js/node_modules
+      - type: volume
+        source: postgres-socket
+        target: /run/postgresql
+
+  db:
+    build:
+      context: .
+      target: db
+    environment:
+      POSTGRES_PASSWORD: unused
+      POSTGRES_INITDB_ARGS: --auth=peer
+    healthcheck:
+      test: "su-exec postgres pg_isready || exit 1"
+      retries: 10
+    volumes:
+      - type: volume
+        source: postgres-socket
+        target: /run/postgresql
+# don't listen on TCP port; write optimizations
+    command: ["-c", "listen_addresses=",
+              "-c", "wal_level=minimal",
+              "-c", "max_wal_senders=0",
+              "-c", "synchronous_commit=off"]
+
+volumes:
+  postgres-socket:

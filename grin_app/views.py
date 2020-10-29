@@ -1,13 +1,14 @@
 import logging
 import simplejson as json
 import re
+from functools import reduce
 from decimal import Decimal
 from django.conf import settings
 from django.db import connection
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
-from ensure_nocache import ensure_nocache
+from grin_app.ensure_nocache import ensure_nocache
 
 # SRID 4326 is WGS 84 long lat unit=degrees, also the specification of the
 # geoometric_coord field in the grin_accessions table.
@@ -216,7 +217,7 @@ def evaluation_metadata(req):
     }
     where_clauses = [
         val['sql'] for
-        key, val in GRIN_ACC_WHERE_FRAGS.items() + GRIN_EVAL_WHERE_FRAGS.items()
+        key, val in {**GRIN_ACC_WHERE_FRAGS, **GRIN_EVAL_WHERE_FRAGS}.items()
         if val['include'](sql_params)
         ]
     if len(where_clauses) == 0:

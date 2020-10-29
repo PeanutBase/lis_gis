@@ -1,0 +1,60 @@
+# local or remote production deployment
+# Usage:
+#     POSTGRES_PASSWORD='mypassword' ALLOWED_HOSTS='myhost.mydomain' docker-compose -f docker-compose.prod.yml up --build -d
+#
+# where ALLOWED_HOSTS is a space-separated list of hostnames (or "*")
+services:
+  nginx:
+    build:
+      context: .
+      target: nginx
+    environment:
+      SCRIPT_NAME: /germplasm/map # can be null (i.e., ''), but not unset for envsubst
+    ports:
+      - "80:80"
+    depends_on:
+      - django
+    volumes:
+      - gunicorn-socket:/run/gunicorn
+
+  django:
+    build:
+      context: .
+      target: prod
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ALLOWED_HOSTS:
+      DEBUG:
+      PGHOST: /run/postgresql
+      PGPORT:
+      PGPASSWORD:
+      PGUSER:
+      PGDATABASE: postgres
+      SCRIPT_NAME: /germplasm/map
+    volumes:
+      - gunicorn-socket:/run/gunicorn
+      - postgres-socket:/run/postgresql
+
+  db:
+    build:
+      context: .
+      target: db
+    healthcheck:
+      test: "su-exec postgres pg_isready || exit 1"
+      retries: 10
+    environment:
+      POSTGRES_PASSWORD: unused
+      POSTGRES_INITDB_ARGS: --auth=peer
+    volumes:
+      - postgres-socket:/run/postgresql
+# don't listen on TCP port; write optimizations
+    command: ["-c", "listen_addresses=",
+              "-c", "wal_level=minimal",
+              "-c", "max_wal_senders=0",
+              "-c", "synchronous_commit=off"]
+
+volumes:
+  gunicorn-socket:
+  postgres-socket:
